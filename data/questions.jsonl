@@ -1,0 +1,22 @@
+{"question": "How long is personal data retained after an account is closed?", "answers": ["24 months", "24 months after the account is closed"], "gold_doc_id": 4}
+{"question": "What is the maximum retention period for biometric data?", "answers": ["12 months", "a maximum of 12 months"], "gold_doc_id": 4}
+{"question": "Within how many days must Northwind fulfill a GDPR data subject request?", "answers": ["30 days", "within 30 days"], "gold_doc_id": 5}
+{"question": "How long does Northwind have to fulfill a CCPA consumer request?", "answers": ["45 days", "within 45 days"], "gold_doc_id": 5}
+{"question": "What encryption is used for customer data at rest?", "answers": ["AES-256", "encrypted at rest using AES-256"], "gold_doc_id": 10}
+{"question": "How often must employees rotate their passwords?", "answers": ["every 90 days", "90 days"], "gold_doc_id": 11}
+{"question": "What is the Recovery Time Objective for InsightHub?", "answers": ["4 hours", "RTO of 4 hours"], "gold_doc_id": 22}
+{"question": "What is the Recovery Point Objective?", "answers": ["1 hour", "RPO of 1 hour"], "gold_doc_id": 22}
+{"question": "What is the initial response time for a SEV1 incident?", "answers": ["15 minutes", "within 15 minutes"], "gold_doc_id": 19}
+{"question": "How many vacation days do full-time employees get per year?", "answers": ["20 days", "20 days of paid vacation"], "gold_doc_id": 30}
+{"question": "How much is the daily meal reimbursement while traveling?", "answers": ["75 US dollars", "$75 per day", "up to 75 US dollars per day"], "gold_doc_id": 35}
+{"question": "What is the 401(k) company match?", "answers": ["100 percent of the first 4 percent", "4 percent match"], "gold_doc_id": 38}
+{"question": "How long do OAuth access tokens last in the InsightHub API?", "answers": ["1 hour", "expire after 1 hour"], "gold_doc_id": 48}
+{"question": "What is the API rate limit per key?", "answers": ["600 requests per minute", "600 requests per minute per API key"], "gold_doc_id": 49}
+{"question": "What uptime does InsightHub guarantee for Enterprise customers?", "answers": ["99.9 percent", "99.9 percent monthly uptime"], "gold_doc_id": 47}
+{"question": "How quickly is employee access revoked after they leave?", "answers": ["within 24 hours", "24 hours"], "gold_doc_id": 17}
+{"question": "How many days of parental leave does the primary caregiver receive?", "answers": ["16 weeks", "16 weeks of fully paid parental leave"], "gold_doc_id": 31}
+{"question": "Which deployment strategy does the engineering team use?", "answers": ["blue-green deployments", "blue-green"], "gold_doc_id": 50}
+{"question": "Who is the CEO of Northwind Analytics?", "answers": ["Dana Whitfield"], "gold_doc_id": 1}
+{"question": "Compare the data-retention obligations for GDPR and CCPA requests at Northwind.", "answers": ["GDPR within 30 days and CCPA within 45 days", "30 days for GDPR and 45 days for CCPA"], "gold_doc_id": 5}
+{"question": "What certifications does Northwind hold for information security?", "answers": ["SOC 2 Type II and ISO 27001", "SOC 2 and ISO 27001"], "gold_doc_id": 12}
+{"question": "How much is the annual professional development budget per employee?", "answers": ["1,500 US dollars", "$1,500", "1500 US dollars"], "gold_doc_id": 39}

@@ -1,0 +1,9 @@
+strategy,n,recall_at_k,mean_f1,mean_em,mean_latency_s,mean_docs,rerank_pct
+adaptive,22,1.0000,0.9167,0.7727,0.4827,4.91,9.1
+fixed_simple,22,1.0000,0.9167,0.7727,0.2663,2.00,0.0
+fixed_complex,22,1.0000,0.9167,0.7727,0.7820,10.00,100.0
+
+adaptive_class,count
+Simple,4
+Medium,16
+Complex,2

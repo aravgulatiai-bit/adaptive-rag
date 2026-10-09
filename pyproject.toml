@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adaptive-rag"
+version = "0.1.0"
+description = "Adaptive RAG with a Hierarchical Fuzzy Query-Complexity Engine (free, local, CPU-only)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Adaptive RAG" }]
+
+# Runtime dependencies are pinned loosely here; requirements.txt mirrors them
+# for a reproducible `pip install -r requirements.txt` setup flow.
+dependencies = [
+    "numpy>=1.26,<3",
+    "scipy>=1.11",
+    "scikit-fuzzy>=0.5.0",
+    "spacy>=3.7,<3.9",
+    "nltk>=3.8",
+    "torch>=2.2",
+    "transformers>=4.40,<5",
+    "sentence-transformers>=3.0",
+    "sentencepiece>=0.1.99",
+    "rank_bm25>=0.2.2",
+    "datasets>=2.19",
+    "PyYAML>=6.0",
+    "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+rag = "adaptive_rag.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]

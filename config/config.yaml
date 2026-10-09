@@ -1,0 +1,155 @@
+# =============================================================================
+# Adaptive RAG configuration
+# -----------------------------------------------------------------------------
+# Every tunable threshold, top-k value, model name, and path lives here so that
+# nothing policy-relevant is hardcoded in the source. See config.py for the
+# typed dataclasses this file is loaded into.
+# =============================================================================
+
+paths:
+  data_dir: data              # corpus + prebuilt indexes
+  results_dir: results        # evaluation output (CSV)
+  corpus_file: corpus.jsonl
+  questions_file: questions.jsonl
+  embeddings_file: embeddings.npy
+  bm25_file: bm25.pkl
+  meta_file: index_meta.json
+
+models:
+  # spaCy English pipeline (tokenization, POS, NER, dependency parse)
+  spacy_model: en_core_web_sm
+  # Dense bi-encoder for passage embeddings + query encoding
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  # Cross-encoder used for re-ranking on complex queries
+  cross_encoder_model: cross-encoder/ms-marco-MiniLM-L-6-v2
+  # Local answering LLM (swappable — see llm.py). "flan-t5" -> FlanT5LLM.
+  llm_backend: flan-t5
+  llm_model: google/flan-t5-base
+  llm_max_new_tokens: 128
+  # Retrieve-then-focus: retrieval fetches top_k passages for recall, but only
+  # the top-N (best-ranked, after any re-ranking) are placed in the LLM prompt.
+  # Small models degrade when fed many passages; this keeps the context tight.
+  # Set high (e.g. 20) to feed the LLM every retrieved passage instead.
+  llm_context_top_n: 3
+
+dataset:
+  # Corpus source: "folder" (local documents) or "squad" (HF download, no auth).
+  source: folder
+  # --- folder source -------------------------------------------------------
+  # Directory of local .md/.txt documents to build the corpus from, and a
+  # JSONL file of hand-authored eval questions (question / answers / gold_hint).
+  docs_dir: sample_docs
+  eval_questions_file: sample_docs_eval.jsonl
+  chunk_max_chars: 700        # target passage size when splitting documents
+  chunk_min_chars: 200        # merge paragraphs smaller than this
+  # --- squad source --------------------------------------------------------
+  name: squad
+  split: validation
+  num_passages: 300           # number of unique contexts to keep as the corpus
+  num_questions: 200          # number of questions to keep for the eval set
+  # Cap questions taken from any single context so the eval set spans many
+  # distinct passages (SQuAD is ordered, so many questions share a context).
+  questions_per_context: 1
+
+# -----------------------------------------------------------------------------
+# Module 2 — feature normalization ranges.
+# Each raw feature is divided by `cap` and clipped to [0, 1]. Documented so the
+# normalization is transparent and reproducible.
+# -----------------------------------------------------------------------------
+features:
+  query_length_cap: 30.0        # ~30 tokens -> "long" query
+  dependency_depth_cap: 10.0    # dependency tree depth of 10 -> "deep"
+  entity_density_cap: 0.5       # 50% of tokens being entity tokens -> saturated
+  domain_density_cap: 0.20      # weighted domain mass / tokens -> saturated (see below)
+  semantic_ambiguity_cap: 10.0  # mean WordNet polysemy of 10 -> saturated
+  # Intent classes mapped to a numeric [0,1] scale (Reasoning subsystem input).
+  intent_scale:
+    definition: 0.10
+    procedure: 0.40
+    reasoning: 0.70
+    comparison: 0.95
+  # --- Intent detection ----------------------------------------------------
+  # When true, intent uses the dependency parse (comparative morphology,
+  # noun coordination) in addition to lexical cues, and returns a *continuous*
+  # score (a mixture over intents) instead of a hard class lookup. Still fully
+  # rule-based and training-free. Set false for the legacy regex-only behavior.
+  intent_syntax_aware: true
+  # --- Domain vocabulary ---------------------------------------------------
+  # When true, domain-keyword density uses a corpus-derived, TF-IDF-weighted
+  # vocabulary built at ingest time (data_dir/domain_vocab.json), so rare
+  # technical terms count more than common ones and coverage adapts to the
+  # corpus. The hand-authored `domain_keywords` below are still merged in as a
+  # supplement (weight 1.0), and are the sole fallback when no vocab file
+  # exists. Set false to use only the hand-authored list (flat 0/1 matching).
+  use_corpus_domain_vocab: true
+  domain_vocab_file: domain_vocab.json  # relative to data_dir
+  domain_vocab_top_n: 80                 # number of terms to keep from the corpus
+  # Domain-keyword list (Knowledge subsystem). Supplement + fallback vocabulary.
+  domain_keywords:
+    - gdpr
+    - ccpa
+    - hipaa
+    - regulation
+    - compliance
+    - data
+    - privacy
+    - biometric
+    - retention
+    - processing
+    - controller
+    - processor
+    - consent
+    - encryption
+    - algorithm
+    - protocol
+    - neural
+    - quantum
+    - genome
+    - enzyme
+    - molecule
+    - theorem
+    - derivative
+    - kinetics
+    - obligation
+    - liability
+    - jurisdiction
+
+# -----------------------------------------------------------------------------
+# Module 6 — retrieval policy. Score bands map to a retrieval configuration.
+# Bands are half-open [lo, hi); the top band is inclusive of 1.0.
+# -----------------------------------------------------------------------------
+policy:
+  bands:
+    - name: Simple
+      lo: 0.00
+      hi: 0.35
+      top_k: 2
+      use_bm25: false           # dense only
+      use_dense: true
+      rerank: false
+    - name: Medium
+      lo: 0.35
+      hi: 0.70
+      top_k: 5
+      use_bm25: true            # hybrid
+      use_dense: true
+      rerank: false             # optional; off by default
+    - name: Complex
+      lo: 0.70
+      hi: 1.01
+      top_k: 10
+      use_bm25: true            # hybrid
+      use_dense: true
+      rerank: true              # + cross-encoder
+
+retrieval:
+  # Reciprocal Rank Fusion constant. score = sum(1 / (rrf_k + rank)).
+  rrf_k: 60
+  # Candidate pool size fetched from each retriever before fusion / rerank.
+  candidate_pool: 50
+
+evaluation:
+  # Fixed baselines to compare the adaptive system against.
+  fixed_simple_top_k: 2
+  fixed_complex_top_k: 10
+  # recall@k uses each strategy's own retrieved-doc count.

@@ -1,0 +1,8 @@
+{
+  "num_passages": 56,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "embedding_dim": 384,
+  "source": "folder",
+  "dataset": "folder:sample_docs",
+  "split": ""
+}

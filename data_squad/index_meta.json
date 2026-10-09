@@ -1,0 +1,8 @@
+{
+  "num_passages": 300,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "embedding_dim": 384,
+  "source": "squad",
+  "dataset": "squad",
+  "split": "validation"
+}
